@@ -11,9 +11,9 @@ from config import SKIP_SECTIONS
 class Section:
     """One logical section (or subsection) from a PDF."""
     section_name: str
-    subsection_name: str | None
+    subsection_name: str | None  # name of the subsection (if exists)
     text: str
-    page_numbers: list[int]
+    page_numbers: list[int]  # all the pages on which the section spans
 
 
 @dataclass
@@ -21,16 +21,20 @@ class ParsedDocument:
     """Holds all the parsed sections from a single PDF."""
     filename: str
     paper_title: str
-    sections: list[Section]
+    sections: list[Section] # list of all sections (and their text) in a document
 
 
 def parse_pdf(path: Path) -> ParsedDocument:
     """
-    Convert a PDF file into a ParsedDocument with sections.
-    Input: filepath of the PDF
-    Output: ParsedDocument object
-    """
 
+    Convert a PDF file into a ParsedDocument with sections.
+
+    Input: 
+        path: filepath of the PDF
+
+    Output: 
+        ParsedDocument object
+    """
     converter = DocumentConverter()
     doc = converter.convert(str(path)).document
 
@@ -47,13 +51,13 @@ def parse_pdf(path: Path) -> ParsedDocument:
         page_no = item.prov[0].page_no # fetch page number
 
         if item.label == "title": 
-            if not paper_title:
+            if not paper_title: # ensures oonly one time assignment
                 paper_title = item.text.strip()
 
         elif item.label == "section_header":
-            # we hit a new section, so save whatever we collected for the previous one
+            # we hit a new section, so save the previous one
             joined = "\n".join(current_parts).strip()
-            if joined and section_name.strip().lower() not in SKIP_SECTIONS:
+            if joined and (section_name.strip().lower() not in SKIP_SECTIONS):
                 sections.append(Section(section_name, subsection_name, joined, sorted(current_pages)))
 
             # level 1 = top-level section
@@ -81,7 +85,7 @@ def parse_pdf(path: Path) -> ParsedDocument:
 
     # save the last section
     joined = "\n".join(current_parts).strip()
-    if joined and section_name.strip().lower() not in SKIP_SECTIONS:
+    if joined and (section_name.strip().lower() not in SKIP_SECTIONS):
         sections.append(Section(section_name, subsection_name, joined, sorted(current_pages)))
 
     # falls back to filename if it couldn't find a title
