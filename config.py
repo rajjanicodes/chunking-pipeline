@@ -6,15 +6,15 @@ from pathlib import Path
 PDF_DIR = Path("data/pdfs")
 OUTPUT_PATH = Path("output/chunks.jsonl")
 
-# --- chunking ---
+# --- chunker ---
 CHUNK_SIZE = 2000      # ~512 tokens per chunk
 OVERLAP = 200          # 10% overlap for semantic continuity
 
-# --- parser: sections to skip (not useful for RAG) ---
+# --- parser ---
 SKIP_SECTIONS = [
     "references", "acknowledgements", "acknowledgment",
     "author contributions", "competing interests",
     "additional files", "supplementary",
     "abbreviations", "declarations", "funding",
     "availability of data",
-]
+] # these are the commo section names I assumed to be not useful in the downstream task
